@@ -1,1 +1,2 @@
-web: gunicorn wsgi:application  # Match the variable name
+web: gunicorn app:app
+
