@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block title %}Manufacturing Processes Questionnaire{% endblock %}
+{% block content %}
+    <h1>Welcome, {{ user.name }} ({{ user.srn }})</h1>
+    <p>Answer the following questions:</p>
+
+    <!-- Flash Messages Container -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+
+        {% set questions = [
+            "1. Rolling process Example",
+            "2. Drop Forging Example",
+            "3. Press Forging Example",
+            "4. Upset Forging Example",
+            "5. Extrusion process Example",
+            "6. Wire Drawing Example",
+            "7. Sheet Metal Operations Example"
+        ] %}
+
+        {% for field, question in [
+            (form.answer1, questions[0]),
+            (form.answer2, questions[1]),
+            (form.answer3, questions[2]),
+            (form.answer4, questions[3]),
+            (form.answer5, questions[4]),
+            (form.answer6, questions[5]),
+            (form.answer7, questions[6])
+        ] %}
+            <div class="form-group">
+                <label class="form-control-label" for="{{ field.id }}">{{ question }}</label>
+
+                {% if field.errors %}
+                    {{ field(class="form-control form-control-lg is-invalid", rows="3") }}
+                    <div class="invalid-feedback">
+                        {% for error in field.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ field(class="form-control form-control-lg", rows="3") }}
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on first answer field
+            const firstField = document.getElementById('answer1');
+            if (firstField) {
+                firstField.focus();
+            }
+
+            // If there's an error, focus on the first problematic field
+            const errorAlert = document.querySelector('.alert-danger');
+            if (errorAlert) {
+                const errorText = errorAlert.textContent;
+                const match = errorText.match(/Answer (\d)/);
+                if (match) {
+                    const fieldNum = match[1];
+                    const field = document.getElementById('answer' + fieldNum);
+                    if (field) {
+                        field.focus();
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock content %}
