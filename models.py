@@ -7,7 +7,7 @@ class User(db.Model):
     srn = db.Column(db.String(20), primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    answers = db.relationship('Answer', backref='author', lazy=True)
+    answers = db.relationship('Answer', backref='user', lazy=True)
 
 class Answer(db.Model):
     user_srn = db.Column(db.String(20), db.ForeignKey('user.srn'), primary_key=True)
