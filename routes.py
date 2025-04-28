@@ -54,31 +54,31 @@ def main(srn):
             return redirect(url_for('routes.congrats', name=user.name))
             
         except IntegrityError as e:
-    db.session.rollback()
-    error_shown = False  # Track if we found a field-specific error
-    
-    # PostgreSQL error parsing
-    if hasattr(e.orig, 'diag'):
-        constraint_name = e.orig.diag.get('constraint_name', '')
-        if constraint_name.startswith('uq_answer'):
-            error_field = constraint_name[-1]
-            if field := getattr(form, f'answer{error_field}', None):
-                field.errors.append('This answer already exists. Please provide a unique answer.')
-                error_shown = True
-    
-    # Fallback for non-PostgreSQL or unexpected errors
-    if not error_shown:
-        constraint_match = re.search(r'constraint "(uq_answer\d+)"', str(e.orig))
-        if constraint_match:
-            error_field = constraint_match.group(1)[-1]
-            if field := getattr(form, f'answer{error_field}', None):
-                field.errors.append('This answer already exists. Please provide a unique answer.')
-                error_shown = True
-    
-    if not error_shown:
-        flash('Database error occurred. Please try again.', 'danger')
-    
-    return render_template('main.html', user=user, form=form)
+            db.session.rollback()
+            error_shown = False  # Track if we found a field-specific error
+            
+            # PostgreSQL error parsing
+            if hasattr(e.orig, 'diag'):
+                constraint_name = e.orig.diag.get('constraint_name', '')
+                if constraint_name.startswith('uq_answer'):
+                    error_field = constraint_name[-1]
+                    if field := getattr(form, f'answer{error_field}', None):
+                        field.errors.append('This answer already exists. Please provide a unique answer.')
+                        error_shown = True
+            
+            # Fallback for non-PostgreSQL or unexpected errors
+            if not error_shown:
+                constraint_match = re.search(r'constraint "(uq_answer\d+)"', str(e.orig))
+                if constraint_match:
+                    error_field = constraint_match.group(1)[-1]
+                    if field := getattr(form, f'answer{error_field}', None):
+                        field.errors.append('This answer already exists. Please provide a unique answer.')
+                        error_shown = True
+            
+            if not error_shown:
+                flash('Database error occurred. Please try again.', 'danger')
+            
+            return render_template('main.html', user=user, form=form)
 
 @routes_bp.route('/congrats/<name>')
 def congrats(name):
