@@ -1,4 +1,4 @@
-# routes.py
+    # routes.py
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from forms import RegistrationForm, LoginForm, AnswerForm
 from models import User, Answer, db
@@ -64,7 +64,7 @@ def main(srn):
                     error_field = constraint_name[-1]
                     field = getattr(form, f'answer{error_field}', None)
                     if field:
-                        field.errors.append('This answer already exists. Please provide a unique answer.')
+                        field.errors.append('This answer is repeated. Please provide a unique answer.')
                         error_shown = True
 
             # Fallback for other DBs
@@ -74,17 +74,17 @@ def main(srn):
                     error_field = constraint_match.group(1)[-1]
                     field = getattr(form, f'answer{error_field}', None)
                     if field:
-                        field.errors.append('This answer already exists. Please provide a unique answer.')
+                        field.errors.append('This answer is repeated. Please provide a unique answer.')
                         error_shown = True
 
             if not error_shown:
                 flash('Database error occurred. Please try again.', 'danger')
 
-            # Always return a response here!
-            return render_template('main.html', user=user, form=form)
+            return render_template('main.html', user=user, form=form)   # <-- Always return here!
 
-    # Always return a response for GET and for non-validated POST
+    # Always return this for GET and for invalid POST
     return render_template('main.html', user=user, form=form)
+
 
 
 @routes_bp.route('/congrats/<name>')
