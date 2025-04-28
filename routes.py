@@ -33,12 +33,7 @@ def login():
 
 @routes_bp.route('/main/<srn>', methods=['GET', 'POST'])
 def main(srn):
-    # Always check if user exists, else redirect to login
-    user = User.query.filter_by(srn=srn).first()
-    if not user:
-        flash("User not found. Please log in again.", "danger")
-        return redirect(url_for('routes.login'))
-
+    user = User.query.get_or_404(srn)
     form = AnswerForm()
 
     if form.validate_on_submit():
@@ -60,39 +55,34 @@ def main(srn):
 
         except IntegrityError as e:
             db.session.rollback()
-            # --- Use a flag to indicate if a field error was added
-            field_error_flag = False
+            error_field = None
 
-            # Try to get constraint name from PostgreSQL diag
-            constraint_name = ''
-            if hasattr(e.orig, 'diag'):
-                constraint_name = getattr(e.orig.diag, 'constraint_name', '')
+            # Handle PostgreSQL error
+            orig_error_str = str(e.orig)
+            
+            # Try to match constraint name
+            constraint_match = re.search(r'unique constraint "([^"]+)"', orig_error_str, re.IGNORECASE)
+            if constraint_match:
+                constraint_name = constraint_match.group(1)
+                if constraint_name.startswith('uq_answer'):
+                    error_field = constraint_name[-1]  # Last character should be number
 
-            if constraint_name and constraint_name.startswith('uq_answer'):
-                answer_num = constraint_name[-1]
-                field = getattr(form, f'answer{answer_num}', None)
+            # Try fallback: match field name directly
+            if not error_field:
+                field_match = re.search(r'\((answer\d)\)=', orig_error_str)
+                if field_match:
+                    field_name = field_match.group(1)
+                    error_field = field_name[-1]  # Last digit
+
+            if error_field:
+                field = getattr(form, f'answer{error_field}', None)
                 if field:
                     field.errors.append('This answer already exists. Please provide a unique answer.')
-                    field_error_flag = True
-
-            # Fallback: regex match constraint name from error string
-            if not field_error_flag:
-                match = re.search(r'constraint "(uq_answer\d+)"', str(e.orig))
-                if match:
-                    answer_num = match.group(1)[-1]
-                    field = getattr(form, f'answer{answer_num}', None)
-                    if field:
-                        field.errors.append('This answer already exists. Please provide a unique answer.')
-                        field_error_flag = True
-
-            # If no field error, show generic flash
-            if not field_error_flag:
+            else:
                 flash('Database error occurred. Please try again.', 'danger')
 
-            # Always return the form with errors
             return render_template('main.html', user=user, form=form)
 
-    # Always return the form for GET or invalid POST
     return render_template('main.html', user=user, form=form)
 
 
