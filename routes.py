@@ -1,4 +1,4 @@
-    # routes.py
+# routes.py
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from forms import RegistrationForm, LoginForm, AnswerForm
 from models import User, Answer, db
@@ -35,7 +35,7 @@ def login():
 def main(srn):
     user = User.query.get_or_404(srn)
     form = AnswerForm()
-
+    
     if form.validate_on_submit():
         try:
             answer = Answer(
@@ -52,40 +52,28 @@ def main(srn):
             db.session.commit()
             flash('Answers submitted successfully!', 'success')
             return redirect(url_for('routes.congrats', name=user.name))
-
+            
         except IntegrityError as e:
             db.session.rollback()
-            error_shown = False
-
-            # PostgreSQL-specific constraint name
-            if hasattr(e.orig, 'diag'):
-                constraint_name = getattr(e.orig.diag, 'constraint_name', '')
-                if constraint_name and constraint_name.startswith('uq_answer'):
-                    error_field = constraint_name[-1]
-                    field = getattr(form, f'answer{error_field}', None)
-                    if field:
-                        field.errors.append('This answer is repeated. Please provide a unique answer.')
-                        error_shown = True
-
-            # Fallback for other DBs
-            if not error_shown:
-                constraint_match = re.search(r'constraint "(uq_answer\d+)"', str(e.orig))
-                if constraint_match:
-                    error_field = constraint_match.group(1)[-1]
-                    field = getattr(form, f'answer{error_field}', None)
-                    if field:
-                        field.errors.append('This answer is repeated. Please provide a unique answer.')
-                        error_shown = True
-
-            if not error_shown:
+            error_field = None
+            
+            # Match unique constraint violation
+            constraint_match = re.search(r'constraint "(uq_answer\d+)"', str(e.orig))
+            if constraint_match:
+                constraint_name = constraint_match.group(1)
+                error_field = constraint_name[-1]  # Get the question number
+                
+                # Add error to the specific field
+                field = getattr(form, f'answer{error_field}', None)
+                if field:
+                    field.errors.append('This answer already exists. Please provide a unique answer.')
+            
+            if not error_field:
                 flash('Database error occurred. Please try again.', 'danger')
-
-            return render_template('main.html', user=user, form=form)   # <-- Always return here!
-
-    # Always return this for GET and for invalid POST
+            
+            return render_template('main.html', user=user, form=form)
+    
     return render_template('main.html', user=user, form=form)
-
-
 
 @routes_bp.route('/congrats/<name>')
 def congrats(name):
