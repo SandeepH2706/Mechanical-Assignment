@@ -55,35 +55,39 @@ def main(srn):
 
         except IntegrityError as e:
             db.session.rollback()
-            error_shown = False
+            error_handled = False
 
-            # Try PostgreSQL-specific constraint name
+            # Try to get constraint name from PostgreSQL error diagnostics
             constraint_name = ''
             if hasattr(e.orig, 'diag'):
                 constraint_name = getattr(e.orig.diag, 'constraint_name', '')
+
             if constraint_name and constraint_name.startswith('uq_answer'):
-                error_field = constraint_name[-1]
-                field = getattr(form, f'answer{error_field}', None)
+                # Extract the answer number from constraint name, e.g. 'uq_answer3' -> '3'
+                answer_num = constraint_name[-1]
+                field = getattr(form, f'answer{answer_num}', None)
                 if field:
-                    field.errors.append('This answer is repeated. Please provide a unique answer.')
-                    error_shown = True
+                    field.errors.append('This answer already exists. Please provide a unique answer.')
+                    error_handled = True
 
-            # Fallback for other DBs
-            if not error_shown:
-                constraint_match = re.search(r'constraint "(uq_answer\d+)"', str(e.orig))
-                if constraint_match:
-                    error_field = constraint_match.group(1)[-1]
-                    field = getattr(form, f'answer{error_field}', None)
+            # Fallback: parse constraint name from error message string (if no diag attribute)
+            if not error_handled:
+                match = re.search(r'constraint "(uq_answer\d+)"', str(e.orig))
+                if match:
+                    answer_num = match.group(1)[-1]
+                    field = getattr(form, f'answer{answer_num}', None)
                     if field:
-                        field.errors.append('This answer is repeated. Please provide a unique answer.')
-                        error_shown = True
+                        field.errors.append('This answer already exists. Please provide a unique answer.')
+                        error_handled = True
 
-            if not error_shown:
+            # If no specific field error found, show generic flash message
+            if not error_handled:
                 flash('Database error occurred. Please try again.', 'danger')
 
+            # Return the form with field errors displayed
             return render_template('main.html', user=user, form=form)
 
-    # Always return this for GET and for invalid POST
+    # For GET or invalid POST, just render the form
     return render_template('main.html', user=user, form=form)
 
 
