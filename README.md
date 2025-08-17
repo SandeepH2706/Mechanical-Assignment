@@ -1,12 +1,10 @@
-# Mechanical Assignment Portal
+# Mechanical Assignment Portal - Academic Flask Project
 
-A Flask web application designed for mechanical engineering students to submit assignment answers for manufacturing processes questionnaire.
+🌐 **LIVE DEMO ➜ [Try It Now!](https://mechanical-assignment-7od7n7hc4q-uc.a.run.app)**
 
-## 🌐 Live Demo
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge&logo=google-cloud)](https://mechanical-assignment-7od7n7hc4q-uc.a.run.app) [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/SandeepH2706/Mechanical-Assignment) [![Cloud Run](https://img.shields.io/badge/Google-Cloud%20Run-orange?style=for-the-badge&logo=google-cloud)](https://mechanical-assignment-7od7n7hc4q-uc.a.run.app)
 
-**🚀 Try the application:** [https://mechanical-assignment-7od7n7hc4q-uc.a.run.app](https://mechanical-assignment-7od7n7hc4q-uc.a.run.app)
-
-**📂 GitHub Repository:** [https://github.com/SandeepH2706/Mechanical-Assignment](https://github.com/SandeepH2706/Mechanical-Assignment)
+This is a web-based assignment management system I developed for mechanical engineering students to submit their manufacturing processes coursework. The project demonstrates practical application of web development concepts including database management, user authentication, and form validation using Flask framework.
 
 ## 📋 Project Overview
 
