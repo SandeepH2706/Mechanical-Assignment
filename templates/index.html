@@ -1,6 +1,46 @@
 {% extends "layout.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-    <h1>Welcome to the Mechanical Assignment Portal.</h1>
-    <p>Please login to continue.</p>
+    <div class="content-section">
+        <h1>Welcome to the Mechanical Assignment Portal</h1>
+        <p class="lead">This portal is designed for mechanical engineering students to submit their assignment answers.</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">New Students</h5>
+                        <p class="card-text">Register with your Student Registration Number (SRN) to get started.</p>
+                        <a href="{{ url_for('routes.register') }}" class="btn btn-primary">Register</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Existing Students</h5>
+                        <p class="card-text">Already have an account? Login with your SRN and password.</p>
+                        <a href="{{ url_for('routes.login') }}" class="btn btn-success">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h3>Assignment Topics</h3>
+            <ul class="list-group">
+                <li class="list-group-item">Rolling Process Examples</li>
+                <li class="list-group-item">Drop Forging Examples</li>
+                <li class="list-group-item">Press Forging Examples</li>
+                <li class="list-group-item">Upset Forging Examples</li>
+                <li class="list-group-item">Extrusion Process Examples</li>
+                <li class="list-group-item">Wire Drawing Examples</li>
+                <li class="list-group-item">Sheet Metal Operations Examples</li>
+            </ul>
+        </div>
+
+        <div class="alert alert-info mt-4" role="alert">
+            <strong>Important:</strong> Each answer must be unique. Duplicate answers will not be accepted.
+        </div>
+    </div>
 {% endblock content %}

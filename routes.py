@@ -2,7 +2,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from forms import RegistrationForm, LoginForm, AnswerForm
 from models import User, Answer, db
-import psycopg2
 import re
 from sqlalchemy.exc import IntegrityError
 
@@ -14,10 +13,22 @@ def index():
 
 @routes_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    form = RegistrationForm()  # ← Critical initialization
+    form = RegistrationForm()
     if form.validate_on_submit():
-        # Add registration logic here
-        return redirect(url_for('routes.login'))
+        # Create new user
+        user = User(
+            srn=form.srn.data,
+            name=form.name.data,
+            password=form.password.data  # In production, this should be hashed
+        )
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash(f'Account created for {form.name.data}! You can now log in.', 'success')
+            return redirect(url_for('routes.login'))
+        except IntegrityError:
+            db.session.rollback()
+            flash('SRN already exists. Please use a different SRN.', 'danger')
     return render_template('register.html', form=form)
 
 @routes_bp.route('/login', methods=['GET', 'POST'])

@@ -1,0 +1,30 @@
+runtime: python311
+
+env_variables:
+  SECRET_KEY: "your-secret-key-here"
+  # DATABASE_URL will be set via Cloud SQL connection
+
+# Cloud SQL connection (you'll need to create a Cloud SQL instance)
+beta_settings:
+  cloud_sql_instances: PROJECT_ID:REGION:INSTANCE_NAME
+
+# Automatic scaling
+automatic_scaling:
+  min_instances: 0
+  max_instances: 10
+  target_cpu_utilization: 0.6
+
+# Health check
+readiness_check:
+  path: "/"
+  check_interval_sec: 5
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 2
+
+liveness_check:
+  path: "/"
+  check_interval_sec: 30
+  timeout_sec: 4
+  failure_threshold: 4
+  success_threshold: 2
